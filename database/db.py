@@ -1,4 +1,4 @@
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import create_engine
 from os import environ
 from dotenv import load_dotenv
@@ -12,9 +12,9 @@ DB_PORT = environ.get("DB_PORT", 5432)
 DB_NAME = environ.get("DB_NAME", "maind_controllers")
 
 DB_URL = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-print(DB_URL)
+
 engine = create_engine(DB_URL)
 Base = declarative_base()
 
-
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
