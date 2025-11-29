@@ -1,4 +1,4 @@
-import { EmailAnalysisResultDto } from "./email-analysis-dto";
+import { EmailAnalysisDto } from "./email-analysis-dto";
 import { EmailDto } from "./email-dto";
 
 export type SubmitEmailForAnalysisDto = {
@@ -6,5 +6,5 @@ export type SubmitEmailForAnalysisDto = {
 }
 
 export type EmailAnalysisResponseDto = {
-  result: EmailAnalysisResultDto;
+  result: EmailAnalysisDto;
 };
