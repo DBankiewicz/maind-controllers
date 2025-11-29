@@ -9,7 +9,7 @@ router = APIRouter(
     tags=["Users"]
 )
 
-@router.get("me")
+@router.get("/me")
 def read_my_profile(current_user: models.User = Depends(get_current_user)):
     return {
         "id": current_user.id,
