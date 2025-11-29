@@ -10,11 +10,16 @@ type EmailAnalysisGroupProps = {
   groupId: string;
 }
 
+type EmailContentType = 'text' | 'file';
+
 type EmailItemState = {
   id: string;
-  text: string;
+  text?: string;
+  file?: File;
+  selectedType?: EmailContentType;
 };
 
+// Don't read this component please it's shit
 export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
   groupId,
 }) => {
@@ -29,9 +34,19 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
     setEmailItems((prev) => prev.filter((email) => email.id !== id));
   }, []);
 
-  const handleUpdateEmail = useCallback((params: { id: string, text: string }) => {
+  const handleUpdateEmail = useCallback((params: { 
+    id: string, 
+    text?: string,
+    file?: File,
+    selectedType?: EmailContentType,
+  }) => {
+    const { text, file, selectedType } = params;
     setEmailItems((prev) => prev.map((email) => {
-      return email.id === params.id ? { ...email, text: params.text } : email
+      return email.id !== params.id ? email : { 
+        ...email, 
+        ...(selectedType === 'text' ? { text } : { file }),
+        selectedType,
+      }
     }));
   }, []);
 
@@ -40,7 +55,8 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
     submitGroup({
       emails: emailItems.map((email) => ({
         id: email.id,
-        text: email.text,
+        text: email.selectedType === 'text' ? email.text : undefined,
+        file: email.selectedType === 'file' ? email.file : undefined,
       })),
       groupId,
       groupTitle: 'Test group',
@@ -53,14 +69,17 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
         {emailItems.map((email) => (
           <div 
             key={email.id}
-            className="flex w-full justify-between gap-2"
+            className="flex w-full justify-between gap-2 bg-card p-4 rounded-md border border-border"
           >
             <div className="grow">
               <EmailForm 
                 key={email.id}
                 className="grow"
                 onTextChange={(text) => {
-                  handleUpdateEmail({ id: email.id, text });
+                  handleUpdateEmail({ id: email.id, text, selectedType: 'text' });
+                }}
+                onFileChange={(file) => {
+                  handleUpdateEmail({ id: email.id, file: file ?? undefined, selectedType: 'file' });
                 }}
               />
             </div>
