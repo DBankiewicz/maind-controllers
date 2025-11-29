@@ -5,7 +5,7 @@ import { CreateGroupDto, CreateGroupResponseDto, EmailsGroupDto } from "../types
 export class GroupsApi extends BaseApi {
   async createGroup(payload: CreateGroupDto): Promise<CreateGroupResponseDto | undefined> {
     try {
-      const res = await axios.post(`${this.baseUrl}/group`, payload);
+      const res = await axios.post(`${this.baseUrl}/group/`, payload);
       return res.data;
     } catch {
       return undefined;
@@ -23,7 +23,7 @@ export class GroupsApi extends BaseApi {
 }
 
 export const groupsClient = new GroupsApi({
-  baseUrl: 'api/proxy/main-api'
+  baseUrl: '/api/proxy/main-api'
 });
 
 

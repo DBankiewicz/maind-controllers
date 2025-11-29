@@ -13,6 +13,6 @@ export class EmailsApi extends BaseApi {
 }
 
 export const emailsClient = new EmailsApi({
-  baseUrl: 'api/proxy/main-api'
+  baseUrl: '/api/proxy/main-api'
 });
 

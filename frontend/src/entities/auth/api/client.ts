@@ -33,5 +33,5 @@ export class AuthApi extends BaseApi {
 }
 
 export const authClient = new AuthApi({
-  baseUrl: 'api/proxy/main-api'
+  baseUrl: '/api/proxy/main-api'
 });
