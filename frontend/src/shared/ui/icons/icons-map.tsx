@@ -8,6 +8,7 @@ import {
   Pencil,
   Pin,
   PlusIcon,
+  Trash,
 } from 'lucide-react';
 
 export const iconsMap: Record<IconName, JSX.Element> = {
@@ -18,4 +19,5 @@ export const iconsMap: Record<IconName, JSX.Element> = {
   PIN: <Pin />,
   PLUS: <PlusIcon />,
   SHORT_ARROW_UP: <ArrowUp />,
+  TRASH: <Trash />,
 };

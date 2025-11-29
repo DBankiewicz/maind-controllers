@@ -5,4 +5,5 @@ export type IconName =
   | 'PENCIL'
   | 'PIN'
   | 'PLUS'
-  | 'SHORT_ARROW_UP';
+  | 'SHORT_ARROW_UP'
+  | 'TRASH';
