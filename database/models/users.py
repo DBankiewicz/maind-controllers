@@ -1,6 +1,7 @@
 from database.db import Base
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 #users
 # id
 # username
@@ -17,3 +18,5 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    emails = relationship("Email", back_populates="owner", cascade="all, delete", passive_deletes=True)
