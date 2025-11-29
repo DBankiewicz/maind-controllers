@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 async function handler(req: NextRequest) {
   const url = new URL(req.url);
   const path = url.pathname.replace('/api/proxy/main-api/', '');
-  const targetUrl = `${process.env.MAIN_API_SERVICE_URL}/api/${path}${url.search}`;
+  const targetUrl = `${process.env.MAIN_API_SERVICE_URL}/${path}${url.search}`;
 
   const response = await fetch(targetUrl, {
     method: req.method,
