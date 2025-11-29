@@ -87,5 +87,5 @@ def login(user_data: UserAuth, response: Response, session: Session = Depends(ge
         )
 
     # 2. Login (Create session + Cookie)
-    return create_session_for_user(session, user.id, response)
+    return create_session_for_user(user.id, response, session)
 
