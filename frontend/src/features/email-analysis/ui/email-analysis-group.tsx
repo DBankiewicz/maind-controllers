@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useState } from "react";
 import { v4 } from "uuid";
 import { EmailForm } from "./email-form";
