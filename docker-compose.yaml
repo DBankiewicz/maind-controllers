@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      # These map your .env variables to the Docker image specific variables
+      POSTGRES_USER: ${DB_USERNAME:-username}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-maind_controllers}
+    ports:
+      # Maps localhost:5432 to container:5432
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # Persist data even if container is removed
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
