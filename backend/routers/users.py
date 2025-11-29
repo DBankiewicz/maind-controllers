@@ -9,10 +9,10 @@ router = APIRouter(
     tags=["Users"]
 )
 
-@router.get("/users/me")
+@router.get("me")
 def read_my_profile(current_user: models.User = Depends(get_current_user)):
     return {
         "id": current_user.id,
-        "email": current_user.username,
+        "username": current_user.username,
         "message": "Welcome back!"
     }
