@@ -75,7 +75,7 @@ def signup(user_data: UserAuth, response: Response, session: Session = Depends(g
     session.refresh(new_user)
     
     # 3. Auto-Login (Create session + Cookie)
-    return create_session_for_user(session, new_user.id, response)
+    return create_session_for_user(new_user.id, response, session)
 
 @router.post("/login", response_model=LoginResponse)
 def login(user_data: UserAuth, response: Response, session: Session = Depends(get_db)):
