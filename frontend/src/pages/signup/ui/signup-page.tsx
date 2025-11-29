@@ -9,11 +9,11 @@ export function SignUpPage() {
     <div
       className={classNames(
         'h-screen w-screen',
-        'bg-zinc-900',
+        'bg-background',
         'flex items-center justify-center'
       )}
     >
-      <div className="w-[400px] h-[200px] bg-zinc-600">
+      <div className="w-[400px] h-[200px] bg-secondary">
         <SignUpForm 
           // signupSuccessCallback={() => redirect('/login')} 
         />

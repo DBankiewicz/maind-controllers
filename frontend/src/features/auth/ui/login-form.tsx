@@ -34,7 +34,7 @@ export function LoginForm(props: LoginFormProps) {
       <div>
         <Input
           type="text"
-          placeholder="Enter your email"
+          placeholder="Enter your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
