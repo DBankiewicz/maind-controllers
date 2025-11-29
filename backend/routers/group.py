@@ -15,7 +15,7 @@ router = APIRouter(
     prefix='/group'
 )
 
-@router.post('/', response_model=GroupOut)
+@router.post('', response_model=GroupOut)
 def create_group(group_data: GroupCreate,
                  current_user:User = Depends(get_current_user), 
                  session: Session = Depends(get_db)):
@@ -34,7 +34,7 @@ def create_group(group_data: GroupCreate,
         "name": new_group.name
     }
 
-@router.get('/', response_model=List[GroupOut])
+@router.get('', response_model=List[GroupOut])
 def get_groups(current_user:User = Depends(get_current_user), 
                  session: Session = Depends(get_db)):
     result = []
@@ -49,6 +49,6 @@ def get_groups(current_user:User = Depends(get_current_user),
 
     return result
 
-@router.options('/')
+@router.options('')
 def dummy():
     return {"d": "ummy"}

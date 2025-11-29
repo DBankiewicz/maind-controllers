@@ -65,7 +65,7 @@ async def parse_final_content(file_content: UploadFile) -> str:
         # Fallback for non-text files or encoding errors
         return "[Error: Binary file could not be parsed]"
 
-@router.post('/', status_code=status.HTTP_202_ACCEPTED)
+@router.post('', status_code=status.HTTP_202_ACCEPTED)
 async def add_and_analyze(request: Request,
                     group_id: str,
                     background_tasks: BackgroundTasks,
