@@ -1,6 +1,6 @@
 import { createEffect } from "effector";
 import { GroupId } from "../types";
-import { emailsClient } from "../api/client";
+import { emailsClient, groupsClient } from "../api";
 
 export type EmailItem = {
   id: string;
@@ -49,7 +49,16 @@ export const submitGroupFx = createEffect(async (params: {
 
   console.log('formData', formData)
 
-  const response = await emailsClient.submitGroup(formData);
+  const groupCreationResult = await groupsClient.createGroup({
+    group_id: groupId,
+    name: groupTitle,
+  });
+
+  if (!groupCreationResult) {
+    throw new Error('Failed to create group');
+  }
+
+  const response = await emailsClient.submitEmailsToGroup(formData);
   return response;
 
 });

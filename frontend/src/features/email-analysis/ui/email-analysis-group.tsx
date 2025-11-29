@@ -85,7 +85,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
             </div>
             <Button 
               variant="destructive"
-              className="hover:bg-muted cursor-pointer rounded-md !p-1 shrink-0 size-7"
+              className="hover:bg-muted cursor-pointer rounded-md !p-1 shrink-0 size-7 mt-auto"
               onClick={() => handleRemoveEmail(email.id)}
             >
               <Icon icon="TRASH" className="size-4 text-white"/>
