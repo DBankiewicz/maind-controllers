@@ -9,3 +9,10 @@ After the db is started use
 alembic upgrade head
 ```
 to perform migrations
+
+## API Setup
+
+To launch api server (non-containerized)
+```
+uvicorn backend.main:app --port 8000
+```
