@@ -48,3 +48,7 @@ def get_groups(current_user:User = Depends(get_current_user),
         })
 
     return result
+
+@router.options('/')
+def dummy():
+    return {"d": "ummy"}
