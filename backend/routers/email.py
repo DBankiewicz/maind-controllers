@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form
+from pydantic import Json
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update
 
@@ -55,16 +56,20 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]]):
         
 
 async def parse_final_content(file_content: UploadFile) -> str:
-    content_bytes = await file_content.read()
     try:
+        content_bytes = await file_content.read()
+        # Reset cursor if you need to read it again later (good practice)
+        await file_content.seek(0) 
         return content_bytes.decode('utf-8')
     except Exception:
-        return "[Error]: Binary file could not be parsed"
+        # Fallback for non-text files or encoding errors
+        return "[Error: Binary file could not be parsed]"
 
 @router.post('/', status_code=status.HTTP_202_ACCEPTED)
-async def add_and_analyze(group_id: str, 
-                    emails: List[EmailIn], 
+async def add_and_analyze(request: Request,
+                    group_id: str,
                     background_tasks: BackgroundTasks,
+                    emails: Json[List[EmailIn]] = Form(...), 
                     current_user: User = Depends(get_current_user),
                     session: Session = Depends(get_db)):
     group = session.query(Group).where(Group.public_id==group_id).first()
@@ -73,12 +78,23 @@ async def add_and_analyze(group_id: str,
     
     if group.user_id != current_user.id:
         raise HTTPException(401, detail="You are not authorized to add emails to this group.")
-    
+    form_data = await request.form()
     new_emails = []
     for item in emails:
         content = item.content
-        if content is None:
-            content = await parse_final_content(item[item.file_key])
+        if not content:
+            if not item.file_key:
+                raise HTTPException(400, "Not provided file_key nor content")
+            try:
+                file_obj = form_data.get("item.file_key")
+                if not file_obj:
+                    raise HTTPException(400, detail=f"File key '{item.file_key}' was provided but no file was found in the request.")
+                if not isinstance(file_obj, UploadFile):
+                    raise HTTPException(400, detail=f"Key '{item.file_key}' is not a file.")
+
+                content = await parse_final_content(file_obj)
+            except:
+                raise HTTPException(400, "Bad file")
         
         new_emails.append(Email(
             public_id=item.id,
