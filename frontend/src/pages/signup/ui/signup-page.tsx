@@ -9,7 +9,6 @@ export function SignUpPage() {
     <div
       className={classNames(
         'h-screen w-screen',
-        'bg-background',
         'flex items-center justify-center'
       )}
     >
