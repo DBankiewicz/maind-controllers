@@ -1,3 +1,82 @@
-.venv
-__pycache__
+# ---------------------------
+# Python AI/ML App .gitignore
+# ---------------------------
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
 .env
+.venv
+env/
+venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# PyCharm / VSCode
+.idea/
+.vscode/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# C extensions
+*.so
+
+# Logs and outputs
+logs/
+*.log
+*.out
+*.err
+
+# Model artifacts (optional: keep if you version models)
+models/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+*.pb
+
+# Datasets (avoid versioning large data)
+data/
+datasets/
+*.csv
+*.tsv
+*.jsonl
+*.npy
+*.npz
+
+# ML experiment frameworks
+mlruns/           # MLflow
+wandb/            # Weights & Biases
+comet.log/        # Comet ML
+
+# Cache
+.cache/
+__cache__/
+*.cache
+*.mmap
+
+# HuggingFace Transformers cache
+huggingface/
+hf_cache/
+~/.cache/huggingface/
+
+# TensorBoard
+tensorboard/
+tb_logs/
+
+# PyTorch / Torch
+*.ptl
+
+# Images / generated fi
