@@ -34,7 +34,7 @@ def create_group(group_data: GroupCreate,
         "name": new_group.name
     }
 
-@router.get('/', reponse_model=List[GroupOut])
+@router.get('/', response_model=List[GroupOut])
 def get_groups(current_user:User = Depends(get_current_user), 
                  session: Session = Depends(get_db)):
     result = []
