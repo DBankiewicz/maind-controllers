@@ -1,16 +1,15 @@
 from fastapi import FastAPI
-from backend.routers import auth, users
+from backend.routers import auth, user, email, group
 
 # Initialize App
 app = FastAPI(title="My Project API")
 
 # Include Routers
 app.include_router(auth.router)
-app.include_router(users.router)
+app.include_router(user.router)
+app.include_router(email.router)
+app.include_router(group.router)
 
-# Example of how you would add more routers later:
-# from routers import users
-# app.include_router(users.router, prefix="/users", tags=["Users"])
 
 @app.get("/")
 def health_check():
