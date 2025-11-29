@@ -63,3 +63,10 @@ export const submitGroupFx = createEffect(async (params: {
 
 });
 
+export const fetchUserGroupsFx = createEffect(async () => {
+  const response = await groupsClient.getGroups();
+  if (!response) {
+    throw new Error('Failed to fetch groups');
+  }
+  return response;
+});

@@ -1,13 +1,21 @@
 'use client';
 
+import { fetchUserGroupsFx } from '@/entities/emails/store';
 import { EmailAnalysisGroup } from '@/features/email-analysis';
 import classNames from 'classnames';
+import { useUnit } from 'effector-react';
+import { useEffect } from 'react';
 
 type EmailGroupPage = {
   groupId: string;
 };
 
 export function EmailsGroupPage({ groupId }: EmailGroupPage) {
+  const [fetchUserGroups] = useUnit([fetchUserGroupsFx]);
+  useEffect(() => {
+    fetchUserGroups();
+  }, [fetchUserGroups]);
+
   return (
     <div
       className={classNames(
