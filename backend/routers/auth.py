@@ -62,13 +62,13 @@ def create_session_for_user(db: Session, user_id: int, response: Response):
 
 @router.post("/signup", status_code=201)
 def signup(user_data: UserAuth, response: Response, db: Session = Depends(get_db)):
-    # 1. Check if email exists
+    # 1. Check if username exists
     if db.query(User).filter(User.username == user_data.username).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Username already registered")
 
     # 2. Create User
     hashed_pw = get_password_hash(user_data.password)
-    new_user = User(email=user_data.username, pass_hash=hashed_pw)
+    new_user = User(username=user_data.username, pass_hash=hashed_pw)
     
     db.add(new_user)
     db.commit()
@@ -83,7 +83,7 @@ def login(user_data: UserAuth, response: Response, db: Session = Depends(get_db)
     if not user or not verify_password(user_data.password, user.pass_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
+            detail="Incorrect username or password"
         )
 
     # 2. Login (Create session + Cookie)
