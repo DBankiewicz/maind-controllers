@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
+from typing import List
 
 # Imports from your project structure
 from database.models import User, Email, Group
@@ -32,3 +33,18 @@ def create_group(group_data: GroupCreate,
         "group_id": new_group.public_id,
         "name": new_group.name
     }
+
+@router.get('/', reponse_model=List[GroupOut])
+def get_groups(current_user:User = Depends(get_current_user), 
+                 session: Session = Depends(get_db)):
+    result = []
+
+    groups = session.query(Group).where(Group.user_id==current_user.id).all()
+
+    for item in groups:
+        result.append({
+            "group_id": item.public_id,
+            "name": item.name
+        })
+
+    return result
