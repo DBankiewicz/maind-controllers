@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 from backend.schemas import EmailAnalysisSchema
-from backend.ai_core.llm_api import get_response
+from backend.ai_core.llm_api.api import get_response
 
 
 def extract_data(model, text): 
