@@ -38,7 +38,6 @@ logs/
 *.err
 
 # Model artifacts (optional: keep if you version models)
-models/
 checkpoints/
 *.pt
 *.pth
