@@ -189,7 +189,7 @@ async def get_timeline_backlog(email_id: str, current_user: User = Depends(get_c
     return {"message": output}
 
 @router.post('/answer/{email_id}')
-def answer_with_rag(query : str, email_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)) -> str:
+def answer_with_rag(query : str, email_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
     def get_all_emails(email_ids):
         emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_ids)).all()
         res = []
