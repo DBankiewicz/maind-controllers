@@ -4,7 +4,7 @@ import sys
 from backend.ai_core.graphs.build_dag import async_build_dag
 from backend.ai_core.graphs.extras import assign_topic_tags, calculate_rolling_states
 from backend.schemas.mail import EmailWithAnalysis
-
+from backend.ai_core.llm_api.helper import get_response
 # Override built-in sqlite3 module
 sys.modules['sqlite3'] = pysqlite3
 
