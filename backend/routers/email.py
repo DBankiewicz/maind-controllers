@@ -113,7 +113,7 @@ async def add_and_analyze(
     for item in emails:
         content = item.get('text')
         if not content:
-            file_binary = form_data.get(item.get('file_key'))
+            file_binary = form_data.get(item.get('filekey'))
 
             if not file_binary:
                 raise HTTPException(400, "No content nor file attached for one of emails")
