@@ -7,7 +7,7 @@ from sqlalchemy import update
 import json
 
 # Imports from your project structure
-from backend.ai_core.llm_api.api import get_timeline_changes, retirve_context_data_id
+from backend.ai_core.llm_api.api import get_rag_response, get_timeline_changes, retirve_context_data_id
 from database.models import User, Email, Group, EmailAnalysis
 from backend.schemas import EmailIn, EmailOut, EmailAnalysisSchema, EmailWithAnalysis
 from backend.dependencies import get_db, get_current_user
@@ -191,3 +191,11 @@ def get_timeline_backlog(email_id) -> str:
     emails = get_all_emails([email_ids]) + [email] 
     output = get_timeline_changes(emails)
     return output
+
+# TODO make it an endpoint
+def answer_with_rag(email_id, query : str) -> str:
+    email = get_all_emails([email_id])[0]
+
+    final_response, context_data = get_rag_response(query, collection_mails, 5, 3)
+    res = {"id": email_id, "response": final_response, "context_data": context_data}
+    return final_response
