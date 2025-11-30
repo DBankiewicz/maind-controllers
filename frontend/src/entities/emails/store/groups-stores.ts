@@ -2,7 +2,7 @@ import { createStore } from "effector";
 import { EmailsGroupDto } from "../types";
 import { fetchUserGroupsFx } from "./effects";
 
-const $emailsGroups = createStore<EmailsGroupDto[]>([]);
+export const $groups = createStore<EmailsGroupDto[]>([]);
 
-$emailsGroups
+$groups
   .on(fetchUserGroupsFx.doneData, (_, groups) => groups);
