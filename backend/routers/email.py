@@ -94,6 +94,7 @@ async def add_and_analyze(
                     session: Session = Depends(get_db)):
     
     form_data = await request.form()
+    print(form_data)
     group_id = form_data.get('group_id')
     emails = form_data.get('emails')
 
