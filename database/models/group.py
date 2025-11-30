@@ -11,6 +11,7 @@ class Group(Base):
     public_id = Column(String, unique=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False)
     name = Column(String, nullable=False)
+    status = Column(String)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

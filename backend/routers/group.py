@@ -52,3 +52,13 @@ def get_groups(current_user:User = Depends(get_current_user),
 @router.options('')
 def dummy():
     return {"d": "ummy"}
+
+
+@router.get('status')
+def get_group_status(group_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
+    group = session.query(Group).where(Group.public_id==group_id).first()
+    if (group.user_id != current_user.id):
+        raise HTTPException(400, "Unauthorized")
+
+
+    return {"status": group.status}
