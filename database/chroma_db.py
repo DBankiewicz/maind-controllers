@@ -1,6 +1,12 @@
 
 
 from os import environ
+import pysqlite3
+import sys
+
+# Override built-in sqlite3 module
+sys.modules['sqlite3'] = pysqlite3
+
 import chromadb
 from dotenv import load_dotenv
 from pydantic import BaseModel
