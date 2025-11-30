@@ -38,6 +38,7 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
                     sender=result.sender,
                     recipients=result.recipients,
                     topic=result.topic,
+                    timestamp=result.timestamp,
                     summary=result.summary,
                     extra=result.extra
                 )

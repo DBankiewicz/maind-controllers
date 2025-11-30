@@ -81,7 +81,7 @@ def get_group_emails(group_id: str, current_user: User = Depends(get_current_use
             ),
             analysis=EmailAnalysisSchema(
                 sender=analysis.sender,
-                recepients=analysis.recepients,
+                recipients=analysis.recipients,
                 topic=analysis.topic,
                 summary=analysis.summary,
                 timestamp=analysis.timestamp,
