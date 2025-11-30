@@ -152,31 +152,31 @@ async def add_and_analyze(
     return {"message": f"Added {len(new_emails)} emails to group {group_id}"}
     
 
-@router.get('')
-def get_all_emails(email_id_list: List[str], current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
-    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_id_list)).all()
+def get_all_emails(email_id_list: List[str]):
+    with SessionLocal() as session:
+        emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_id_list)).all()
 
-    res = []
-    for email in emails:
-        analysis = email.analysis
-        try:
-            analysis=EmailAnalysisSchema(
-                sender=analysis.sender,
-                recipients=analysis.recipients,
-                topic=analysis.topic,
-                summary=analysis.summary,
-                timestamp=analysis.timestamp,
-                extra=analysis.extra
-            )
-        except:
-            analysis=None
-            
-        res.append(EmailWithAnalysis(
-            email_raw=EmailOut(
-                id=email.public_id,
-                text=email.content
-            ),
-            analysis=analysis
-        ))
+        res = []
+        for email in emails:
+            analysis = email.analysis
+            try:
+                analysis=EmailAnalysisSchema(
+                    sender=analysis.sender,
+                    recipients=analysis.recipients,
+                    topic=analysis.topic,
+                    summary=analysis.summary,
+                    timestamp=analysis.timestamp,
+                    extra=analysis.extra
+                )
+            except:
+                analysis=None
+                
+            res.append(EmailWithAnalysis(
+                email_raw=EmailOut(
+                    id=email.public_id,
+                    text=email.content
+                ),
+                analysis=analysis
+            ))
 
     return res
