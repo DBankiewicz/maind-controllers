@@ -1,8 +1,10 @@
 import uuid
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form, File
-from pydantic import Json
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update
+
+import json
 
 # Imports from your project structure
 from database.models import User, Email, Group, EmailAnalysis
@@ -21,9 +23,9 @@ router = APIRouter(
     prefix='/email'
 )
 
-def analyze_emails_task(emails_data: List[Dict[str, Any]]):
+def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
     with SessionLocal() as session:
-
+        group = session.query(Group).where(Group.public_id==group_id).first()
         for email in emails_data:
             email_id = email['id']
             content = email['content']
@@ -76,65 +78,66 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]]):
             except:
                 session.rollback()
                 continue
+        group.status = "Finished"
+        session.add(group)
+        session.commit()
         
 
-async def parse_final_content(file_content: UploadFile) -> str:
+async def parse_final_content(file_binary: bytes) -> str:
     try:
-        content_bytes = await file_content.read()
-        # Reset cursor if you need to read it again later (good practice)
-        await file_content.seek(0) 
-        return content_bytes.decode('utf-8')
+        return file_binary.decode('utf-8')
     except Exception:
         # Fallback for non-text files or encoding errors
         return "[Error: Binary file could not be parsed]"
 
 @router.post('', status_code=status.HTTP_202_ACCEPTED)
 async def add_and_analyze(
-                    group_id: str,
+                    request: Request,
                     background_tasks: BackgroundTasks,
-                    emails: Json[List[EmailIn]] = Form(...), 
-                    attachments: List[UploadFile] = File(default=[]),
                     current_user: User = Depends(get_current_user),
                     session: Session = Depends(get_db)):
+    
+    form_data = await request.form()
+    print(form_data)
+    group_id = form_data.get('group_id')
+    emails_json_str = form_data.get('emails')
+    attachments = form_data.getlist("attachments")
+    file_map = {file.filename: file for file in attachments}
+
+    emails = json.loads(emails_json_str)
+    print(emails)
     group = session.query(Group).where(Group.public_id==group_id).first()
     if not group:
         raise HTTPException(404, detail="No group with such id")
     
     if group.user_id != current_user.id:
         raise HTTPException(401, detail="You are not authorized to add emails to this group.")
-    file_map = {file.filename: file for file in attachments}
+    
 
     new_emails = []
     for item in emails:
-        content = item.content
+        content = item.get('text')
         if not content:
-            file_binary = file_map.get(item.id)
+            file_binary = file_map.get(item.get('file_key'))
 
             if not file_binary:
                 raise HTTPException(400, "No content nor file attached for one of emails")
             
-            
-            content = parse_final_content(file_binary)
+            file_binary = await file_binary.read()
+            content = await parse_final_content(file_binary)
 
         
         new_emails.append(Email(
-            public_id=item.id,
+            public_id=item.get('id'),
             content=content,
             group_id=group.id,
             user_id=current_user.id,
             
         ))
 
-        
-        new_emails.append(Email(
-            public_id=item.id,
-            content=content,
-            user_id=current_user.id,
-            group_id=group.id
-        ))
-
-
+    group.status = "Working"
     session.add_all(new_emails)
+    session.add(group)
     session.commit()
 
     for email in new_emails:
@@ -142,7 +145,7 @@ async def add_and_analyze(
 
     email_payload =  [{"id": e.id, "content": e.content} for e in new_emails]
 
-    background_tasks.add_task(analyze_emails_task, email_payload)
+    background_tasks.add_task(analyze_emails_task, email_payload, group.public_id)
 
 
     return {"message": f"Added {len(new_emails)} emails to group {group_id}"}

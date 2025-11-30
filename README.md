@@ -14,5 +14,5 @@ to perform migrations
 
 To launch api server (non-containerized)
 ```
-uvicorn backend.main:app --port 8000
+uvicorn backend.main:app --port 5000
 ```

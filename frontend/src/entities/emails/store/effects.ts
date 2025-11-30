@@ -11,7 +11,7 @@ export type EmailItem = {
 type EmailFormJsonItem = {
   id: string;
   text?: string;
-  fileKey?: string;
+  file_key?: string;
 }
 
 export const submitGroupFx = createEffect(async (params: {
@@ -32,9 +32,8 @@ export const submitGroupFx = createEffect(async (params: {
       newEmailJsonItem.text = email.text;
     }
     if (email.file) {
-      const fileKey = `file_${email.id}`;
-      filesFormEntries[fileKey] = email.file;
-      newEmailJsonItem.fileKey = fileKey;
+      filesFormEntries[email.id] = email.file;
+      newEmailJsonItem.file_key = email.id;
     }
     formEmailsJsonEntry.push(newEmailJsonItem);
   })
@@ -42,7 +41,7 @@ export const submitGroupFx = createEffect(async (params: {
   const formData = new FormData();
   formData.append('emails', JSON.stringify(formEmailsJsonEntry));
   Object.entries(filesFormEntries).forEach(([key, value]) => {
-    formData.append(key, value);
+    formData.append('attachments', value, key);
   });
   formData.append('group_id', groupId);
   formData.append('group_title', groupTitle);

@@ -4,10 +4,12 @@ from typing import Any, List, Optional
 
 class EmailIn(BaseModel):
     id: str
-    content: Optional[str]
+    text: Optional[str]
     file_key: Optional[str]
 
-
+class EmailOut(BaseModel):
+    id: str
+    text: str
 
 class EmailAnalysisSchema(BaseModel):
     sender: str = Field(..., description="Sender email address")
@@ -40,6 +42,10 @@ class EmailAnalysisSchema(BaseModel):
             self.timestamp,
             tuple(sorted(self.extra.items()))
         ))
+
+class EmailWithAnalysis(BaseModel):
+    email_raw: EmailOut
+    analysis: EmailAnalysisSchema
 
 class EmailConnectionSchema(BaseModel): #TODO
     older_email: EmailAnalysisSchema
