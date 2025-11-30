@@ -118,7 +118,7 @@ def assign_topic_tags(
             if p in tags_map:
                 inherited_tags.update(tags_map[p])
         
-        inherited_list = list(inherited_tags)
+        inherited_list = list(sorted(inherited_tags))
         
         # 2. The Prompt
         # We handle the "Root Node" case inside the prompt logic by passing empty inherited tags
@@ -162,12 +162,12 @@ def assign_topic_tags(
                 
             # Sanity check: ensure it's a list of strings
             if isinstance(current_tags, list):
-                tags_map[email] = [str(t) for t in current_tags]
+                tags_map[email] = sorted([str(t) for t in current_tags])
             else:
-                tags_map[email] = inherited_list # Fallback
+                tags_map[email] = sorted(inherited_list) # Fallback
                 
         except Exception as e:
             print(f"Tag parsing failed for email {email.timestamp}: {e}")
-            tags_map[email] = inherited_list
+            tags_map[email] = sorted(inherited_list)
 
     return tags_map

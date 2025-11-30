@@ -58,7 +58,7 @@ def _create_connection(older_email: EmailAnalysisSchema, newer_email: EmailAnaly
 
     response = get_response(prompt, model="meta-llama/Llama-3.3-70B-Instruct")
 
-    while response is None:
+    while not response:
         print("Retrying LLM call for email connection...")
         sleep(1)
         response = get_response(prompt, model="meta-llama/Llama-3.3-70B-Instruct")
@@ -145,6 +145,44 @@ async def _async_create_connection(older_email: EmailAnalysisSchema, newer_email
         f"If there is no relationship (or it's very unlikely), respond with 'No Relationship'."
     )
     response = await async_get_response(prompt, model="meta-llama/Llama-3.3-70B-Instruct")
+
+    # Retry when the model fails to respond
+    while not response:
+        print("Retrying LLM call for email connection (async)...")
+        await asyncio.sleep(1)
+        response = await async_get_response(prompt, model="meta-llama/Llama-3.3-70B-Instruct")
+
+    if "No Relationship" in response:
+        return None
+
+    # Parse the response
+    decisions, inquiries, risks = [], [], []
+    current_section = None
+
+    for line in response.split("\n"):
+        line = line.strip()
+        if line.startswith("Decisions:"):
+            current_section = "decisions"
+        elif line.startswith("Inquiries:"):
+            current_section = "inquiries"
+        elif line.startswith("Risks:"):
+            current_section = "risks"
+        elif line.startswith(">"):
+            item = line[1:].strip()
+            if current_section == "decisions":
+                decisions.append(item)
+            elif current_section == "inquiries":
+                inquiries.append(item)
+            elif current_section == "risks":
+                risks.append(item)
+
+    return EmailConnectionSchema(
+        older_email=older_email,
+        newer_email=newer_email,
+        decisions=decisions,
+        inquiries=inquiries,
+        risks=risks
+    )
 
 
 def _transitive_reduction(connections: list[EmailConnectionSchema]) -> list[EmailConnectionSchema]:
