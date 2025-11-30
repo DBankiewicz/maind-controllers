@@ -98,6 +98,8 @@ async def add_and_analyze(
     print(form_data)
     group_id = form_data.get('group_id')
     emails_json_str = form_data.get('emails')
+    attachments = form_data.getlist("attachments")
+    file_map = {file.filename: file for file in attachments}
 
     emails = json.loads(emails_json_str)
     print(emails)
@@ -113,7 +115,7 @@ async def add_and_analyze(
     for item in emails:
         content = item.get('text')
         if not content:
-            file_binary = form_data.get(item.get('filekey'))
+            file_binary = file_map.get(item.get('file_key'))
 
             if not file_binary:
                 raise HTTPException(400, "No content nor file attached for one of emails")
