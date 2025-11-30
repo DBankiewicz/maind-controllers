@@ -1,5 +1,5 @@
 from datetime import datetime
-from ..llm_api.api import get_response
+from backend.ai_core.llm_api.helper import get_response
 
 def try_parse_datetime(date_str: str, allow_llm=True) -> datetime | None:
     """
