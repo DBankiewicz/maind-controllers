@@ -51,7 +51,6 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
                     .values(analysis_id=db_analysis.id)
                 )
                 session.execute(stmt)
-
                 session.commit()
 
                 collection_mails.add(
@@ -75,7 +74,8 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
                     )
 
 
-            except:
+            except Exception as e:
+                print(e)
                 session.rollback()
                 continue
         group.status = "Finished"
