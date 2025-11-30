@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timedelta, timezone
+import chroma
 from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form, File
 from pydantic import Json
 from sqlalchemy.orm import Session, joinedload
@@ -12,6 +13,8 @@ from backend.dependencies import get_db, get_current_user
 
 from backend.ai_core.data_loader.load_data import process_mail
 from database.db import SessionLocal 
+from database.chroma_db import collection_mails, collection_summary_mails 
+
 from typing import List, Dict, Any
 import uuid
 
@@ -29,8 +32,9 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]]):
 
             try:
                 result = process_mail(content)
+                public_id = str(uuid.uuid4())
                 db_analysis = EmailAnalysis(
-                    public_id=str(uuid.uuid4()),
+                    public_id=public_id,
                     sender=result.sender,
                     recipients=result.recipients,
                     topic=result.topic,
@@ -49,6 +53,27 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]]):
                 session.execute(stmt)
 
                 session.commit()
+
+                collection_mails.add(
+                    ids=[str(db_analysis.id)],    
+                    documents=[content] ,
+                    metadatas=[{
+                        "public_id": public_id,
+                        "topic": result.topic
+                    }],
+                    # embeddings=[embedding]   # TODO custom not default  Chroma embed
+                )
+                if result.summary:
+                    collection_summary_mails.add(
+                        ids=[str(db_analysis.id)],               
+                        metadatas=[{
+                            "public_id": public_id,
+                            "topic": result.topic
+                        }],
+                        documents=[result.summary]
+                        # embeddings=[embedding]   # TODO custom not default  Chroma embed
+                    )
+
 
             except:
                 session.rollback()
