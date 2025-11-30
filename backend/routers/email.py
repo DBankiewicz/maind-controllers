@@ -179,6 +179,8 @@ def get_timeline_backlog(email_id: str, current_user: User = Depends(get_current
                 ),
                 analysis=analysis
             ))
+        
+        return res
 
     email = get_all_emails([email_id])
     email_ids = retirve_context_data_id(email.email_raw.text, collection_mails, 15, 5 )
