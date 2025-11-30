@@ -29,10 +29,10 @@ export function EmailsGroupPage({ groupId }: EmailGroupPage) {
       <EmailsGroupPageSidebar 
         className="shrink-0"
         onNewGroupClick={() => {
-          redirect(`/email-group/${uuidv4()}`)
+          redirect(`/groups/${uuidv4()}`)
         }}
       />
-      <div className="mx-auto w-[60vw] h-full border border-neutral-200 p-6">
+      <div className="mx-auto w-[55%] h-full p-6">
         <EmailAnalysisGroup groupId={groupId} />
       </div>
     </div>
