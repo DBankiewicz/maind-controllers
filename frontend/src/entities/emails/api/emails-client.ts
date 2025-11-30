@@ -19,6 +19,15 @@ export class EmailsApi extends BaseApi {
       return undefined;
     }
   }
+
+  async answerEmail(emailId: string, query: string): Promise<{ id: string; response: string; context_data: string } | undefined> {
+    try {
+      const res = await axios.post(`${this.baseUrl}/email/answer/${emailId}`, { query, email_id: emailId });
+      return res.data;
+    } catch {
+      return undefined;
+    }
+  }
 }
 
 export const emailsClient = new EmailsApi({

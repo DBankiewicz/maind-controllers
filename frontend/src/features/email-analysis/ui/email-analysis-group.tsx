@@ -46,6 +46,10 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
   const [selectedGraphEmail, setSelectedGraphEmail] = useState<string | null>(null);
   const [graphData, setGraphData] = useState<string | null>(null);
   const [isGraphLoading, setIsGraphLoading] = useState(false);
+  const [selectedMessageEmail, setSelectedMessageEmail] = useState<string | null>(null);
+  const [messageQuery, setMessageQuery] = useState('');
+  const [messageResponse, setMessageResponse] = useState<{ id: string; response: string; context_data: string } | null>(null);
+  const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [groupTitle, setGroupTitle] = useState('Email Group Analysis');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -158,6 +162,28 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
     }
   }, []);
 
+  const handleSendMessage = useCallback(async (emailId: string, query: string) => {
+    if (!query.trim()) return;
+
+    setIsMessageLoading(true);
+    try {
+      const result = await emailsClient.answerEmail(emailId, query);
+      if (!result) {
+        throw new Error('Failed to send message');
+      }
+      setMessageResponse(result);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      setMessageResponse({
+        id: emailId,
+        response: 'Error sending message. Please try again.',
+        context_data: ''
+      });
+    } finally {
+      setIsMessageLoading(false);
+    }
+  }, []);
+
   const handleSubmitGroupForAnalysis = useCallback(async () => {
     console.log('Submit group for analysis', emailItems);
     try {
@@ -264,6 +290,24 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
                   </Button>
                 )}
 
+                {/* Message Button - only show if analysis is available */}
+                {analysis && (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-8 shrink-0"
+                    onClick={() => {
+                      setSelectedMessageEmail(email.id);
+                      setMessageQuery('');
+                      setMessageResponse(null);
+                    }}
+                    title="Send message"
+                    disabled={isMessageLoading}
+                  >
+                    <span className="size-4 flex items-center justify-center">{isMessageLoading && selectedMessageEmail === email.id ? "⏳" : "💬"}</span>
+                  </Button>
+                )}
+
                 {/* Graph Button - only show if analysis is available */}
                 {analysis && (
                   <Button
@@ -361,6 +405,84 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
                   {graphData || 'No graph data available'}
                 </pre>
               </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Message Dialog */}
+      <Dialog open={!!selectedMessageEmail} onOpenChange={(open) => !open && setSelectedMessageEmail(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Send Message</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {!messageResponse ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Enter your question about this email:
+                  </label>
+                  <textarea
+                    value={messageQuery}
+                    onChange={(e) => setMessageQuery(e.target.value)}
+                    placeholder="Ask anything about this email..."
+                    className="w-full min-h-[100px] p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                    disabled={isMessageLoading}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setSelectedMessageEmail(null)}
+                    disabled={isMessageLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (selectedMessageEmail && messageQuery.trim()) {
+                        handleSendMessage(selectedMessageEmail, messageQuery.trim());
+                      }
+                    }}
+                    disabled={!messageQuery.trim() || isMessageLoading}
+                  >
+                    {isMessageLoading ? 'Sending...' : 'Send'}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <h4 className="font-medium text-primary mb-2">Response:</h4>
+                  <div className="bg-muted p-4 rounded-lg">
+                    <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                      {messageResponse.response}
+                    </p>
+                  </div>
+                </div>
+                {messageResponse.context_data && (
+                  <div>
+                    <h4 className="font-medium text-primary mb-2">Context Data:</h4>
+                    <div className="bg-muted p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {messageResponse.context_data}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => {
+                      setMessageResponse(null);
+                      setMessageQuery('');
+                    }}
+                  >
+                    Ask Another Question
+                  </Button>
+                </div>
+              </>
             )}
           </div>
         </DialogContent>
