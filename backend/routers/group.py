@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 
 # Imports from your project structure
 from database.models import User, Email, Group
-from backend.schemas import EmailIn, GroupOut, GroupCreate
+from backend.schemas import EmailAnalysisSchema, GroupOut, GroupCreate, EmailWithAnalysis, EmailOut
 from backend.dependencies import get_db, get_current_user
 
 
@@ -54,7 +54,7 @@ def dummy():
     return {"d": "ummy"}
 
 
-@router.get('status')
+@router.get('/status/{group_id}')
 def get_group_status(group_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
     group = session.query(Group).where(Group.public_id==group_id).first()
     if (group.user_id != current_user.id):
@@ -62,3 +62,31 @@ def get_group_status(group_id: str, current_user: User = Depends(get_current_use
 
 
     return {"status": group.status}
+
+@router.get('/{group_id}', response_class=List[EmailWithAnalysis])
+def get_group_emails(group_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
+    group = session.query(Group).where(Group.public_id==group_id).first()
+    if (group.user_id != current_user.id):
+        raise HTTPException(400, "Unauthorized")
+    
+    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.group_id == group_id).all()
+
+    res = []
+    for email in emails:
+        analysis = email.analysis
+        res.append(EmailWithAnalysis(
+            email_raw=EmailOut(
+                id=email.public_id,
+                text=email.content
+            ),
+            analysis=EmailAnalysisSchema(
+                sender=analysis.sender,
+                recepients=analysis.recepients,
+                topic=analysis.topic,
+                summary=analysis.summary,
+                timestamp=analysis.timestamp,
+                extra=analysis.extra
+            )
+        ))
+
+    return res

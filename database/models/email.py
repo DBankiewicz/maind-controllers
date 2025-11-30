@@ -29,6 +29,7 @@ class EmailAnalysis(Base):
 
     topic = Column(String, nullable=False)
     summary = Column(String, nullable=False)
+    timestamp = Column(String, nullable=False)
 
     extra = Column(JSONB, nullable=True)
 
