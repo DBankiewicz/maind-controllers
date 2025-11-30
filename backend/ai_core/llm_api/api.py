@@ -4,47 +4,16 @@ import sys
 from backend.ai_core.graphs.build_dag import async_build_dag
 from backend.ai_core.graphs.extras import assign_topic_tags, calculate_rolling_states
 from backend.schemas.mail import EmailWithAnalysis
-
+from backend.ai_core.llm_api.helper import get_response
 # Override built-in sqlite3 module
 sys.modules['sqlite3'] = pysqlite3
 
 from chromadb import Collection
-from openai import OpenAI
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
-def get_response(prompt: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") -> str:
-    client = OpenAI(
-        api_key=os.getenv("LLM_API_KEY"), 
-        base_url="https://llmlab.plgrid.pl/api/v1"
-    )
-    response =  client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        # input=f"Znajdz tytul maila" # {m}"
-    )
-    res =  response.choices[0].message.content
-    if res is None:
-        res = ''
-    return res
-
-async def async_get_response(prompt: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") -> str:
-    client = AsyncOpenAI(
-        api_key=os.getenv("LLM_API_KEY"), 
-        base_url="https://llmlab.plgrid.pl/api/v1"
-    )
-    response =  await client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        # input=f"Znajdz tytul maila" # {m}"
-    )
-    res =  response.choices[0].message.content
-    if res is None:
-        res = ''
-    return res
 
 def self_correct(user_query: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") -> str:
     first_answer = get_response(user_query, model)

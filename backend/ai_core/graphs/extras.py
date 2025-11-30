@@ -7,7 +7,7 @@ from .utils import try_parse_datetime
 from datetime import datetime
 
 from ...schemas.mail import EmailAnalysisSchema, EmailConnectionSchema
-from ..llm_api.api import get_response
+from backend.ai_core.llm_api.helper import get_response
 
 def _build_parent_map(connections: list[EmailConnectionSchema]) -> Dict[EmailAnalysisSchema, List[EmailAnalysisSchema]]:
     """
