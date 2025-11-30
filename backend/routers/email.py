@@ -188,8 +188,14 @@ async def get_timeline_backlog(email_id: str, current_user: User = Depends(get_c
     output = await get_timeline_changes(emails)
     return {"message": output}
 
+
+from pydantic import BaseModel
+
+class RAGQueryRequest(BaseModel):
+    query: str
+
 @router.post('/answer/{email_id}')
-def answer_with_rag(email_id: str, query: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
+def answer_with_rag(email_id: str, query: RAGQueryRequest, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
     def get_all_emails(email_ids):
         emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_ids)).all()
         res = []
@@ -218,6 +224,6 @@ def answer_with_rag(email_id: str, query: str, current_user: User = Depends(get_
         return res
     email: EmailWithAnalysis = get_all_emails([email_id])[0]
 
-    final_response, context_data = get_rag_response(query, collection_mails, 5, 3)
+    final_response, context_data = get_rag_response(query.query, collection_mails, 5, 3)
     res = {"id": email.email_raw.id, "response": final_response, "context_data": context_data}
     return res
