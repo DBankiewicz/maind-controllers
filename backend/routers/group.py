@@ -74,11 +74,7 @@ def get_group_emails(group_id: str, current_user: User = Depends(get_current_use
     res = []
     for email in emails:
         analysis = email.analysis
-        res.append(EmailWithAnalysis(
-            email_raw=EmailOut(
-                id=email.public_id,
-                text=email.content
-            ),
+        try:
             analysis=EmailAnalysisSchema(
                 sender=analysis.sender,
                 recipients=analysis.recipients,
@@ -87,6 +83,15 @@ def get_group_emails(group_id: str, current_user: User = Depends(get_current_use
                 timestamp=analysis.timestamp,
                 extra=analysis.extra
             )
+        except:
+            analysis=None
+            
+        res.append(EmailWithAnalysis(
+            email_raw=EmailOut(
+                id=email.public_id,
+                text=email.content
+            ),
+            analysis=analysis
         ))
 
     return res
