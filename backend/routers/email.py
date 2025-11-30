@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form
+from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form, File
 from pydantic import Json
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update
@@ -66,10 +66,11 @@ async def parse_final_content(file_content: UploadFile) -> str:
         return "[Error: Binary file could not be parsed]"
 
 @router.post('', status_code=status.HTTP_202_ACCEPTED)
-async def add_and_analyze(request: Request,
+async def add_and_analyze(
                     group_id: str,
                     background_tasks: BackgroundTasks,
                     emails: Json[List[EmailIn]] = Form(...), 
+                    attachments: List[UploadFile] = File(default=[]),
                     current_user: User = Depends(get_current_user),
                     session: Session = Depends(get_db)):
     group = session.query(Group).where(Group.public_id==group_id).first()
@@ -78,23 +79,29 @@ async def add_and_analyze(request: Request,
     
     if group.user_id != current_user.id:
         raise HTTPException(401, detail="You are not authorized to add emails to this group.")
-    form_data = await request.form()
+    file_map = {file.filename: file for file in attachments}
+
     new_emails = []
     for item in emails:
         content = item.content
         if not content:
-            if not item.file_key:
-                raise HTTPException(400, "Not provided file_key nor content")
-            try:
-                file_obj = form_data.get("item.file_key")
-                if not file_obj:
-                    raise HTTPException(400, detail=f"File key '{item.file_key}' was provided but no file was found in the request.")
-                if not isinstance(file_obj, UploadFile):
-                    raise HTTPException(400, detail=f"Key '{item.file_key}' is not a file.")
+            file_binary = file_map.get(item.id)
 
-                content = await parse_final_content(file_obj)
-            except:
-                raise HTTPException(400, "Bad file")
+            if not file_binary:
+                raise HTTPException(400, "No content nor file attached for one of emails")
+            
+            
+            content = parse_final_content(file_binary)
+
+        
+        new_emails.append(Email(
+            public_id=item.id,
+            content=content,
+            group_id=group.id,
+            user_id=current_user.id,
+            
+        ))
+
         
         new_emails.append(Email(
             public_id=item.id,
