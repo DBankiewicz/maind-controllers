@@ -64,25 +64,27 @@ async def parse_final_content(file_binary: bytes) -> str:
 
 @router.post('', status_code=status.HTTP_202_ACCEPTED)
 async def add_and_analyze(
-                    group_id: str,
-                    background_tasks: BackgroundTasks,
-                    emails: Json[List[EmailIn]] = Form(...), 
-                    attachments: List[UploadFile] = File(default=[]),
+                    request: Request,
                     current_user: User = Depends(get_current_user),
                     session: Session = Depends(get_db)):
+    
+    form_data = await request.form()
+    group_id = form_data.get('group_id')
+    emails = form_data.get('emails')
+
     group = session.query(Group).where(Group.public_id==group_id).first()
     if not group:
         raise HTTPException(404, detail="No group with such id")
     
     if group.user_id != current_user.id:
         raise HTTPException(401, detail="You are not authorized to add emails to this group.")
-    file_map = {file.filename: file for file in attachments}
+    
 
     new_emails = []
     for item in emails:
         content = item.content
         if not content:
-            file_binary = file_map.get(item.id)
+            file_binary = form_data.get(item.get('file_key'))
 
             if not file_binary:
                 raise HTTPException(400, "No content nor file attached for one of emails")
