@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form, File
-from pydantic import Json
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import update
+
+import json
 
 # Imports from your project structure
 from database.models import User, Email, Group, EmailAnalysis
@@ -89,14 +90,17 @@ async def parse_final_content(file_binary: bytes) -> str:
 @router.post('', status_code=status.HTTP_202_ACCEPTED)
 async def add_and_analyze(
                     request: Request,
+                    background_tasks: BackgroundTasks,
                     current_user: User = Depends(get_current_user),
                     session: Session = Depends(get_db)):
     
     form_data = await request.form()
     print(form_data)
     group_id = form_data.get('group_id')
-    emails = form_data.get('emails')
+    emails_json_str = form_data.get('emails')
 
+    emails = json.loads(emails_json_str)
+    print(emails)
     group = session.query(Group).where(Group.public_id==group_id).first()
     if not group:
         raise HTTPException(404, detail="No group with such id")

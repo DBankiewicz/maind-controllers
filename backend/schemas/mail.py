@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 
 class EmailIn(BaseModel):
     id: str
-    content: Optional[str]
+    text: Optional[str]
     file_key: Optional[str]
 
 
