@@ -4,7 +4,7 @@ from time import sleep
 from collections import defaultdict, deque
 from backend.schemas.mail import EmailAnalysisSchema, EmailConnectionSchema
 from backend.ai_core.graphs.utils import try_parse_datetime
-from backend.ai_core.llm_api.helper import get_response, async_get_reponse
+from backend.ai_core.llm_api.helper import get_response, async_get_response
 
 def _create_connection(older_email: EmailAnalysisSchema, newer_email: EmailAnalysisSchema) -> EmailConnectionSchema | None:
     """
