@@ -28,10 +28,10 @@ export function LoginForm(props: LoginFormProps) {
   }, [loginStore.loginSuccess, props]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full p-4 rounded">
       <div className="w-full flex justify-center">Login</div>
 
-      <div>
+      <div className="flex flex-col gap-3">
         <Input
           type="text"
           placeholder="Enter your username"
@@ -45,15 +45,16 @@ export function LoginForm(props: LoginFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+
+        <div>
+          <Button 
+            onClick={() => submitForm({ username, password })}
+          >
+            Login
+          </Button>
+        </div>
       </div>
 
-      <div>
-        <Button 
-          onClick={() => submitForm({ username, password })}
-        >
-          Login
-        </Button>
-      </div>
     </div>
   );
 }

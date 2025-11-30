@@ -13,6 +13,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { useUnit } from "effector-react";
 import { submitGroupFx, pollGroupStatusFx, fetchGroupAnalysisFx } from "@/entities/emails/store";
+import { emailsClient } from "@/entities/emails/api/emails-client";
 import { EmailContentType } from "../types/email";
 import { EmailAnalysisDto } from "@/entities/emails/types/email-analysis-dto";
 
@@ -42,6 +43,9 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisData, setAnalysisData] = useState<EmailAnalysisData[]>([]);
   const [selectedAnalysis, setSelectedAnalysis] = useState<EmailAnalysisData | null>(null);
+  const [selectedGraphEmail, setSelectedGraphEmail] = useState<string | null>(null);
+  const [graphData, setGraphData] = useState<string | null>(null);
+  const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [groupTitle, setGroupTitle] = useState('Email Group Analysis');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -137,6 +141,23 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
     };
   }, []);
 
+  const handleFetchGraphData = useCallback(async (emailId: string) => {
+    setIsGraphLoading(true);
+    try {
+      const result = await emailsClient.getEmailGraph(emailId);
+      if (!result) {
+        throw new Error('Failed to fetch graph data');
+      }
+      setGraphData(result.message);
+      setSelectedGraphEmail(emailId);
+    } catch (error) {
+      console.error('Failed to fetch graph data:', error);
+      setGraphData('Error loading graph data');
+    } finally {
+      setIsGraphLoading(false);
+    }
+  }, []);
+
   const handleSubmitGroupForAnalysis = useCallback(async () => {
     console.log('Submit group for analysis', emailItems);
     try {
@@ -155,7 +176,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
     } catch (error) {
       console.error('Failed to submit group for analysis:', error);
     }
-  }, [emailItems, groupId, submitGroup]);
+  }, [emailItems, groupId, groupTitle, submitGroup]);
 
   return (
     <div className="w-full h-full flex flex-col justify-between">
@@ -243,6 +264,20 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
                   </Button>
                 )}
 
+                {/* Graph Button - only show if analysis is available */}
+                {analysis && (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-8 shrink-0"
+                    onClick={() => handleFetchGraphData(email.id)}
+                    title="View graph"
+                    disabled={isGraphLoading}
+                  >
+                    <span className="size-4 flex items-center justify-center">{isGraphLoading && selectedGraphEmail === email.id ? "⏳" : "📊"}</span>
+                  </Button>
+                )}
+
                 {/* Trash Button */}
                 <Button
                   variant="destructive"
@@ -299,6 +334,32 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
               <div>
                 <span className="font-medium text-primary">Summary:</span>
                 <p className="text-muted-foreground mt-2 leading-relaxed">{selectedAnalysis.analysis.summary}</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Graph Dialog */}
+      <Dialog open={!!selectedGraphEmail} onOpenChange={(open) => !open && setSelectedGraphEmail(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Email Graph</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {isGraphLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center gap-3">
+                  <div className="size-4 text-primary animate-spin">⏳</div>
+                  <span className="text-sm text-foreground">Loading graph data...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-muted p-4 rounded-lg">
+                <pre className="text-sm text-foreground whitespace-pre-wrap font-mono">
+                  {graphData || 'No graph data available'}
+                </pre>
               </div>
             )}
           </div>

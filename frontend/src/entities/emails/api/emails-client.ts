@@ -10,6 +10,15 @@ export class EmailsApi extends BaseApi {
       return undefined;
     }
   }
+
+  async getEmailGraph(emailId: string): Promise<{ message: string } | undefined> {
+    try {
+      const res = await axios.get(`${this.baseUrl}/email/${emailId}?type=graph`);
+      return res.data;
+    } catch {
+      return undefined;
+    }
+  }
 }
 
 export const emailsClient = new EmailsApi({

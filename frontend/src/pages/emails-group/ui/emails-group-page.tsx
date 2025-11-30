@@ -26,8 +26,9 @@ export function EmailsGroupPage({ groupId }: EmailGroupPage) {
         'flex'
       )}
     >
-      <EmailsGroupPageSidebar 
+      <EmailsGroupPageSidebar
         className="shrink-0"
+        currentGroupId={groupId}
         onNewGroupClick={() => {
           redirect(`/groups/${uuidv4()}`)
         }}

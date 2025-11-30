@@ -1,7 +1,6 @@
 import { createEffect } from "effector";
 import { GroupId } from "../types";
 import { emailsClient, groupsClient } from "../api";
-import { EmailAnalysisDto } from "../types/email-analysis-dto";
 
 export type EmailItem = {
   id: string;
