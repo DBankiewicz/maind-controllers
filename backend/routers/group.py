@@ -63,7 +63,7 @@ def get_group_status(group_id: str, current_user: User = Depends(get_current_use
 
     return {"status": group.status}
 
-@router.get('/{group_id}', response_class=List[EmailWithAnalysis])
+@router.get('/analysis/{group_id}', response_class=List[EmailWithAnalysis])
 def get_group_emails(group_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
     group = session.query(Group).where(Group.public_id==group_id).first()
     if (group.user_id != current_user.id):
