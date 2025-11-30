@@ -7,12 +7,11 @@ import { Icon } from "@/shared/ui";
 import { Button } from "@/shared/components/ui/button";
 import { useUnit } from "effector-react";
 import { submitGroupFx } from "@/entities/emails/store";
+import { EmailContentType } from "../types/email";
 
 type EmailAnalysisGroupProps = {
   groupId: string;
 }
-
-type EmailContentType = 'text' | 'file';
 
 type EmailItemState = {
   id: string;
@@ -52,6 +51,16 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
     }));
   }, []);
 
+  const handleChangeEmailContentType = useCallback((params: { 
+    id: string, 
+    selectedType: EmailContentType
+  }) => {
+    const { id, selectedType } = params;
+    setEmailItems((prev) => prev.map((email) => {
+      return email.id !== id ? email : { ...email, selectedType };
+    }));
+  }, []);
+
   const handleSubmitGroupForAnalysis = useCallback(() => {
     console.log('Submit group for analysis', emailItems);
     submitGroup({
@@ -67,7 +76,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
 
   return (
     <div className="w-full h-full flex flex-col justify-between">
-      <div className="flex flex-col gap-4 grow">
+      <div className="flex flex-col gap-4 grow overflow-y-auto">
         {emailItems.map((email) => (
           <div 
             key={email.id}
@@ -83,6 +92,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
                 onFileChange={(file) => {
                   handleUpdateEmail({ id: email.id, file: file ?? undefined, selectedType: 'file' });
                 }}
+                onSelectedTypeChanged={(selectedType) => handleChangeEmailContentType({ id: email.id, selectedType })}
               />
             </div>
             <Button 
@@ -105,7 +115,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
         </div>
       </div>
       
-      <div>
+      <div className="mt-3">
         <Button
           className="flex items-center gap-1 text-white"
           onClick={handleSubmitGroupForAnalysis}
