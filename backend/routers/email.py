@@ -154,7 +154,7 @@ async def add_and_analyze(
 
 
 @router.get('/{email_id}')
-def get_timeline_backlog(email_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
+async def get_timeline_backlog(email_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
     def get_all_emails(email_ids):
         emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_ids)).all()
         res = []
@@ -185,5 +185,5 @@ def get_timeline_backlog(email_id: str, current_user: User = Depends(get_current
     email = get_all_emails([email_id])
     email_ids = retirve_context_data_id(email.email_raw.text, collection_mails, 15, 5 )
     emails = get_all_emails(email_ids) + [email] 
-    output = get_timeline_changes(emails)
+    output = await get_timeline_changes(emails)
     return {"message": output}
