@@ -13,14 +13,16 @@ def process_mail(mail: str) -> EmailAnalysisSchema:
     from_ = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Write mail addresses of sender: {mail}. This should be one email (usually after 'OD:'). Only output one mail address, no additional text") 
     # to 
     to_ = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Write mail addresses of recipents: {mail}. This should be at least one email (usually after 'DO:') at the top of the content.  Only output mail addreeses, no additional text")
-    to_ = to_.split("\n")
+    to_ = to_.split("\n") if to_ else []
     # topic 
     topic = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Write mail main topic: {mail}. This should be a field called 'Temat'. Only output mail title, no additional text")
     # summary 
     summary = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Summarize mail content in 3 sentences : {mail}. Only output summary, no additional text")
     # etra 
-    tags = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Write potential tags, categroies: {summary}. Only output categories separated by semicolon, no additional text")
+    tags = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Write potential tags, categories: {summary}. Only output categories separated by semicolon, no additional text")
 
-    extra = {"tags": tags}
-    e = EmailAnalysisSchema(sender=from_, recepients=to_, topic=topic, summary=summary, extra=extra)
+    timestamp = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Extract the timestamp of the email from the following content: {mail}. Only output the timestamp, no additional text. Use the format YYYY-MM-DD HH:MM:SS")
+
+    extra = {"tags": tags, "data": mail}
+    e = EmailAnalysisSchema(sender=from_ or "<unknown>", recipients=to_, topic=topic or "<unknown>", summary=summary, timestamp=timestamp, extra=extra)
     return e
