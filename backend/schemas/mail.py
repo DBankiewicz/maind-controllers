@@ -14,6 +14,7 @@ class EmailAnalysisSchema(BaseModel):
     recipients: List[str] = Field(..., description="Recipient email addresses")
     topic: str = Field(..., description="Email topic")
     summary: Optional[str] = Field(None, description="Auto-generated summary of the content")
+    timestamp: Optional[str] = Field(None, description="Timestamp of the email")
     extra: dict[str, Any]
 
     class ConfigDict:
@@ -30,3 +31,19 @@ class EmailAnalysisSchema(BaseModel):
     class Config:
         from_attributes = True
 
+    def __hash__(self) -> int:
+        return hash((
+            self.sender,
+            tuple(self.recipients),
+            self.topic,
+            self.summary,
+            self.timestamp,
+            tuple(sorted(self.extra.items()))
+        ))
+
+class EmailConnectionSchema(BaseModel): #TODO
+    older_email: EmailAnalysisSchema
+    newer_email: EmailAnalysisSchema
+    decisions: list[str]
+    inquiries: list[str]
+    risks: list[str]

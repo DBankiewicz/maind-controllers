@@ -2,7 +2,7 @@
 
 import { LoginForm } from '@/features/auth';
 import classNames from 'classnames';
-// import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 export function LoginPage() {
   return (
@@ -14,7 +14,7 @@ export function LoginPage() {
     >
       <div className="w-[400px] h-[200px] bg-secondary">
         <LoginForm 
-          // loginSuccessCallback={() => redirect('/chat')} 
+          loginSuccessCallback={() => redirect('/groups')} 
         />
       </div>
     </div>
