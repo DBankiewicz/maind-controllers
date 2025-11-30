@@ -182,7 +182,7 @@ async def get_timeline_backlog(email_id: str, current_user: User = Depends(get_c
         
         return res
 
-    email = get_all_emails([email_id])
+    email: EmailWithAnalysis = get_all_emails([email_id])[0]
     email_ids = retirve_context_data_id(email.email_raw.text, collection_mails, 15, 5 )
     emails = get_all_emails(email_ids) + [email] 
     output = await get_timeline_changes(emails)
