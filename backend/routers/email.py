@@ -7,7 +7,7 @@ from sqlalchemy import update
 import json
 
 # Imports from your project structure
-from backend.ai_core.llm_api.api import retirve_context_data_id
+from backend.ai_core.llm_api.api import get_timeline_changes, retirve_context_data_id
 from database.models import User, Email, Group, EmailAnalysis
 from backend.schemas import EmailIn, EmailOut, EmailAnalysisSchema, EmailWithAnalysis
 from backend.dependencies import get_db, get_current_user
