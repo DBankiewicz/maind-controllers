@@ -50,3 +50,13 @@ def retirve_context_data(query: str, db_collection: Collection, top_k: int = 5, 
     if distance_th is not None:
         context_data = [data   for data, distance in zip(context_data, results['distances'][0] ) if distance < distance_th  ]
     return context_data
+
+def retirve_context_data_id(query: str, db_collection: Collection, top_k: int = 5, distance_th: None | float = 2,) -> list[str]:
+    results = db_collection.query(
+    query_texts=query, # default  Chroma embedding model, TODO custom 
+    n_results=top_k 
+    )
+    context_data = results['ids'][0]
+    if distance_th is not None:
+        context_data = [data   for data, distance in zip(context_data, results['distances'][0] ) if distance < distance_th  ]
+    return context_data
