@@ -20,6 +20,19 @@ def get_response(prompt: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") 
         res = ''
     return res
 
+def self_correct(user_query: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") -> str:
+    first_answer = get_response(user_query, model)
+    validation_prompt = f"We asked the model the following question:\n\nQUESTION:\n{user_query}\n\nThe model answered:\n{first_answer}\n\nPlease check if the answer is correct. Respond STRICTLY with one word: 'correct' or 'incorrect'."
+    validation = get_response(validation_prompt, model).strip().lower()
+
+    if validation == "correct":
+        return first_answer
+
+    correction_prompt = f"The previous answer was marked as incorrect. Please correct it.\n\nQUESTION:\n{user_query}\n\nPrevious incorrect answer:\n{first_answer}\n\nProvide a corrected and final answer."
+    corrected_answer = get_response(correction_prompt, model)
+
+    return corrected_answer
+
 
 def get_rag_response(query: str, db_collection: Collection, top_k: int = 5, distance_th: None | float = 2,  model: str= "meta-llama/Llama-3.3-70B-Instruct" ) -> tuple[str, str]:
     context_data = retirve_context_data(query, db_collection, top_k, distance_th)
