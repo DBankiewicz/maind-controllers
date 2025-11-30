@@ -88,7 +88,7 @@ async def add_and_analyze(
                 raise HTTPException(400, "No content nor file attached for one of emails")
             
             file_binary = await file_binary.read()
-            content = parse_final_content(file_binary)
+            content = await parse_final_content(file_binary)
 
         
         new_emails.append(Email(
