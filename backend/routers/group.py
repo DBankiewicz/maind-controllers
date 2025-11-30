@@ -69,7 +69,7 @@ def get_group_emails(group_id: str, current_user: User = Depends(get_current_use
     if (group.user_id != current_user.id):
         raise HTTPException(400, "Unauthorized")
     
-    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.group_id == group_id).all()
+    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.group_id == group.id).all()
 
     res = []
     for email in emails:
