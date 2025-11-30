@@ -20,7 +20,7 @@ class EmailAnalysisSchema(BaseModel):
         json_schema_extra = {
             "example": {
                 "from_": "alice@example.com",
-                "to": ["bob@example.com"],
+                "recipients": ["bob@example.com"],
                 "topic": "Meeting Update",
                 "data": "Hi Bob,\nThe meeting is moved to Monday at 2 PM.\nRegards,\nAlice",
                 "summary": "Meeting rescheduled to Monday at 2 PM."

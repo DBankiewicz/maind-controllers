@@ -4,7 +4,7 @@ from backend.schemas import EmailAnalysisSchema
 from backend.ai_core.llm_api.api import get_response
 
 
-def extract_data(model, text): 
+def extract_data(model, text: str) -> str: 
     return get_response(text, model=model)
 
 
@@ -22,5 +22,5 @@ def process_mail(mail: str) -> EmailAnalysisSchema:
     tags = extract_data("meta-llama/Llama-3.3-70B-Instruct", f"Write potential tags, categroies: {summary}. Only output categories separated by semicolon, no additional text")
 
     extra = {"tags": tags}
-    e = EmailAnalysisSchema(sender=from_, recepients=to_, topic=topic, summary=summary, extra=extra)
+    e = EmailAnalysisSchema(sender=from_, recipients=to_, topic=topic, summary=summary, extra=extra)
     return e
