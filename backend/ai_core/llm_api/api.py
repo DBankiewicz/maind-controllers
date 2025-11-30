@@ -1,6 +1,10 @@
 import pysqlite3
 import sys
 
+from backend.ai_core.graphs.build_dag import async_build_dag
+from backend.ai_core.graphs.extras import assign_topic_tags, calculate_rolling_states
+from backend.schemas.mail import EmailWithAnalysis
+
 # Override built-in sqlite3 module
 sys.modules['sqlite3'] = pysqlite3
 
@@ -82,3 +86,33 @@ def retirve_context_data_id(query: str, db_collection: Collection, top_k: int = 
     if distance_th is not None:
         context_data = [data   for data, distance in zip(context_data, results['distances'][0] ) if distance < distance_th  ]
     return context_data
+
+
+async def get_timeline_changes(emails_full: list[EmailWithAnalysis]) - > str:
+    emails = [e.analysis for  e in emails_full if e.analysis is not None]
+    dag_connections = await async_build_dag(emails)
+    rolling_states = calculate_rolling_states(emails, dag_connections)
+    topic_tags = assign_topic_tags(emails, dag_connections)
+
+    response = ""
+    
+    response += "DAG Connections:\n"
+    for c in dag_connections:
+        response += f"Email: {c.older_email.id} --> Email: {c.newer_email.id}\n"
+        response += f"decisions: {c.decisions}\n"
+        response += f"risks: {c.risks}\n"
+        response += f"inquiries: {c.inquiries}\n"
+        response += "-----\n"
+
+
+    response += "\nRolling States:\n"
+    for e in emails:
+        response += f"Email: {e.id} --> Rolling State: {rolling_states.get(e, 'No State')}\n"
+
+    response += "\nTopic Tags:\n"
+    for email, topics in topic_tags.items():
+        response += f"Email: {email.id}\n"
+        response += f"Topics: {';; '.join(topics)}\n"
+        response += "-----\n"
+    
+    return response
