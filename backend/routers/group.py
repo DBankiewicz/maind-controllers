@@ -63,30 +63,35 @@ def get_group_status(group_id: str, current_user: User = Depends(get_current_use
 
     return {"status": group.status}
 
-@router.get('/{group_id}', response_class=List[EmailWithAnalysis])
+@router.get('/analysis/{group_id}', response_model=List[EmailWithAnalysis])
 def get_group_emails(group_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
     group = session.query(Group).where(Group.public_id==group_id).first()
     if (group.user_id != current_user.id):
         raise HTTPException(400, "Unauthorized")
     
-    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.group_id == group_id).all()
+    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.group_id == group.id).all()
 
     res = []
     for email in emails:
         analysis = email.analysis
-        res.append(EmailWithAnalysis(
-            email_raw=EmailOut(
-                id=email.public_id,
-                text=email.content
-            ),
+        try:
             analysis=EmailAnalysisSchema(
                 sender=analysis.sender,
-                recepients=analysis.recepients,
+                recipients=analysis.recipients,
                 topic=analysis.topic,
                 summary=analysis.summary,
                 timestamp=analysis.timestamp,
                 extra=analysis.extra
             )
+        except:
+            analysis=None
+            
+        res.append(EmailWithAnalysis(
+            email_raw=EmailOut(
+                id=email.public_id,
+                text=email.content
+            ),
+            analysis=analysis
         ))
 
     return res

@@ -45,7 +45,7 @@ class EmailAnalysisSchema(BaseModel):
 
 class EmailWithAnalysis(BaseModel):
     email_raw: EmailOut
-    analysis: EmailAnalysisSchema
+    analysis: Optional[EmailAnalysisSchema]
 
 class EmailConnectionSchema(BaseModel): #TODO
     older_email: EmailAnalysisSchema

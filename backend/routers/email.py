@@ -8,7 +8,7 @@ import json
 
 # Imports from your project structure
 from database.models import User, Email, Group, EmailAnalysis
-from backend.schemas import EmailIn
+from backend.schemas import EmailIn, EmailOut, EmailAnalysisSchema, EmailWithAnalysis
 from backend.dependencies import get_db, get_current_user
 
 from backend.ai_core.data_loader.load_data import process_mail
@@ -38,6 +38,7 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
                     sender=result.sender,
                     recipients=result.recipients,
                     topic=result.topic,
+                    timestamp=result.timestamp,
                     summary=result.summary,
                     extra=result.extra
                 )
@@ -51,7 +52,6 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
                     .values(analysis_id=db_analysis.id)
                 )
                 session.execute(stmt)
-
                 session.commit()
 
                 collection_mails.add(
@@ -75,7 +75,8 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
                     )
 
 
-            except:
+            except Exception as e:
+                print(e)
                 session.rollback()
                 continue
         group.status = "Finished"
@@ -150,3 +151,32 @@ async def add_and_analyze(
 
     return {"message": f"Added {len(new_emails)} emails to group {group_id}"}
     
+
+@router.get('')
+def get_all_emails(email_id_list: List[str], current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
+    emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_id_list)).all()
+
+    res = []
+    for email in emails:
+        analysis = email.analysis
+        try:
+            analysis=EmailAnalysisSchema(
+                sender=analysis.sender,
+                recipients=analysis.recipients,
+                topic=analysis.topic,
+                summary=analysis.summary,
+                timestamp=analysis.timestamp,
+                extra=analysis.extra
+            )
+        except:
+            analysis=None
+            
+        res.append(EmailWithAnalysis(
+            email_raw=EmailOut(
+                id=email.public_id,
+                text=email.content
+            ),
+            analysis=analysis
+        ))
+
+    return res
