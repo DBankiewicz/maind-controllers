@@ -38,3 +38,5 @@ npm run start
 ``` 
 
 ## License
+
+Check teh license [here](LICENSE). 
