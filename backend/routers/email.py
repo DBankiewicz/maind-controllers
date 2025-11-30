@@ -23,9 +23,9 @@ router = APIRouter(
     prefix='/email'
 )
 
-def analyze_emails_task(emails_data: List[Dict[str, Any]]):
+def analyze_emails_task(emails_data: List[Dict[str, Any]], group_id: str):
     with SessionLocal() as session:
-
+        group = session.query(Group).where(Group.public_id==group_id).first()
         for email in emails_data:
             email_id = email['id']
             content = email['content']
@@ -78,6 +78,9 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]]):
             except:
                 session.rollback()
                 continue
+        group.status = "Finished"
+        session.add(group)
+        session.commit()
         
 
 async def parse_final_content(file_binary: bytes) -> str:
@@ -132,8 +135,9 @@ async def add_and_analyze(
             
         ))
 
-
+    group.status = "Working"
     session.add_all(new_emails)
+    session.add(group)
     session.commit()
 
     for email in new_emails:
@@ -141,7 +145,7 @@ async def add_and_analyze(
 
     email_payload =  [{"id": e.id, "content": e.content} for e in new_emails]
 
-    background_tasks.add_task(analyze_emails_task, email_payload)
+    background_tasks.add_task(analyze_emails_task, email_payload, group.public_id)
 
 
     return {"message": f"Added {len(new_emails)} emails to group {group_id}"}
