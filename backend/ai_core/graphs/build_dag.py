@@ -1,9 +1,9 @@
 from datetime import datetime
 from time import sleep
 from collections import defaultdict, deque
-from ...schemas.mail import EmailAnalysisSchema, EmailConnectionSchema
-from ..llm_api.api import get_response
-from .utils import try_parse_datetime
+from backend.schemas.mail import EmailAnalysisSchema, EmailConnectionSchema
+from backend.ai_core.llm_api.api import get_response
+from backend.ai_core.graphs.utils import try_parse_datetime
 
 def _create_connection(older_email: EmailAnalysisSchema, newer_email: EmailAnalysisSchema) -> EmailConnectionSchema | None:
     """
