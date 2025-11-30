@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default function Page() {
   useEffect(() => {
-    redirect(`/email-group/${uuidv4()}`);
+    redirect(`/groups/${uuidv4()}`);
   })
   return null;
 }

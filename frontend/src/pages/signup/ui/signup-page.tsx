@@ -2,7 +2,7 @@
 
 import { SignUpForm } from '@/features/auth';
 import classNames from 'classnames';
-// import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 export function SignUpPage() {
   return (
@@ -14,7 +14,7 @@ export function SignUpPage() {
     >
       <div className="w-[400px] h-[200px] bg-secondary">
         <SignUpForm 
-          // signupSuccessCallback={() => redirect('/login')} 
+          signupSuccessCallback={() => redirect('/groups')} 
         />
       </div>
     </div>
