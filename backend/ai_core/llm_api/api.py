@@ -15,21 +15,6 @@ import os
 
 load_dotenv()
 
-async def async_get_response(prompt: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") -> str:
-    client = AsyncOpenAI(
-        api_key=os.getenv("LLM_API_KEY"), 
-        base_url="https://llmlab.plgrid.pl/api/v1"
-    )
-    response =  await client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        # input=f"Znajdz tytul maila" # {m}"
-    )
-    res =  response.choices[0].message.content
-    if res is None:
-        res = ''
-    return res
-
 def self_correct(user_query: str, model: str = "meta-llama/Llama-3.3-70B-Instruct") -> str:
     first_answer = get_response(user_query, model)
     validation_prompt = f"We asked the model the following question:\n\nQUESTION:\n{user_query}\n\nThe model answered:\n{first_answer}\n\nPlease check if the answer is correct. Respond STRICTLY with one word: 'correct' or 'incorrect'."
