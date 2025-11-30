@@ -42,6 +42,8 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisData, setAnalysisData] = useState<EmailAnalysisData[]>([]);
   const [selectedAnalysis, setSelectedAnalysis] = useState<EmailAnalysisData | null>(null);
+  const [groupTitle, setGroupTitle] = useState('Email Group Analysis');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const handleAddEmail = useCallback(() => {
@@ -145,7 +147,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
           file: email.selectedType === 'file' ? email.file : undefined,
         })),
         groupId,
-        groupTitle: 'Test group',
+        groupTitle: groupTitle,
       });
       setIsSubmitted(true);
       setIsProcessing(true);
@@ -177,6 +179,32 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
         </div>
       )}
 
+      {/* Group Title */}
+      <div className="mb-4">
+        {isEditingTitle ? (
+          <input
+            type="text"
+            value={groupTitle}
+            onChange={(e) => setGroupTitle(e.target.value)}
+            onBlur={() => setIsEditingTitle(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setIsEditingTitle(false);
+              }
+            }}
+            className="text-lg font-semibold bg-transparent border-b border-border outline-none focus:border-primary transition-colors"
+            autoFocus
+          />
+        ) : (
+          <h2
+            onClick={() => setIsEditingTitle(true)}
+            className="text-lg font-semibold cursor-pointer hover:text-primary transition-colors"
+          >
+            {groupTitle}
+          </h2>
+        )}
+      </div>
+
       <div className="flex flex-col gap-4 grow overflow-y-auto">
         {emailItems.map((email) => {
           const analysis = analysisData.find(a => a.email_raw.id === email.id);
@@ -201,7 +229,7 @@ export const EmailAnalysisGroup: React.FC<EmailAnalysisGroupProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 mt-auto">
+              <div className="flex flex-col gap-2 justify-end">
                 {/* Analysis Button - only show if analysis is available */}
                 {analysis && (
                   <Button

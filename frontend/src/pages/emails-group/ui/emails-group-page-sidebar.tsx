@@ -18,8 +18,8 @@ export const EmailsGroupPageSidebar = (props: EmailsGroupPageSidebarProps) => {
         New group
       </Button>
 
-      <div className="mt-6">
-        {groups.map((group) => (
+      <div className="mt-6 h-full overflow-y-scroll">
+        {groups.toReversed().map((group) => (
           <div key={group.group_id} className="mb-2">
             <div
               className={classNames("w-full", {
