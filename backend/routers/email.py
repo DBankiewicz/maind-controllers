@@ -55,12 +55,9 @@ def analyze_emails_task(emails_data: List[Dict[str, Any]]):
                 continue
         
 
-async def parse_final_content(file_content: UploadFile) -> str:
+async def parse_final_content(file_binary: bytes) -> str:
     try:
-        content_bytes = await file_content.read()
-        # Reset cursor if you need to read it again later (good practice)
-        await file_content.seek(0) 
-        return content_bytes.decode('utf-8')
+        return file_binary.decode('utf-8')
     except Exception:
         # Fallback for non-text files or encoding errors
         return "[Error: Binary file could not be parsed]"
@@ -90,7 +87,7 @@ async def add_and_analyze(
             if not file_binary:
                 raise HTTPException(400, "No content nor file attached for one of emails")
             
-            
+            file_binary = await file_binary.read()
             content = parse_final_content(file_binary)
 
         
@@ -100,14 +97,6 @@ async def add_and_analyze(
             group_id=group.id,
             user_id=current_user.id,
             
-        ))
-
-        
-        new_emails.append(Email(
-            public_id=item.id,
-            content=content,
-            user_id=current_user.id,
-            group_id=group.id
         ))
 
 
