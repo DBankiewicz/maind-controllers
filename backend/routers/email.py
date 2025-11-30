@@ -123,7 +123,7 @@ async def add_and_analyze(
 
         
         new_emails.append(Email(
-            public_id=item.id,
+            public_id=item.get('id'),
             content=content,
             group_id=group.id,
             user_id=current_user.id,
