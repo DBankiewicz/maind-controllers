@@ -1,6 +1,7 @@
 import { createEffect } from "effector";
 import { GroupId } from "../types";
 import { emailsClient, groupsClient } from "../api";
+import { EmailAnalysisDto } from "../types/email-analysis-dto";
 
 export type EmailItem = {
   id: string;
@@ -66,6 +67,22 @@ export const fetchUserGroupsFx = createEffect(async () => {
   const response = await groupsClient.getGroups();
   if (!response) {
     throw new Error('Failed to fetch groups');
+  }
+  return response;
+});
+
+export const pollGroupStatusFx = createEffect(async (groupId: GroupId) => {
+  const response = await groupsClient.getGroupStatus(groupId);
+  if (!response) {
+    throw new Error('Failed to poll group status');
+  }
+  return response;
+});
+
+export const fetchGroupAnalysisFx = createEffect(async (groupId: GroupId) => {
+  const response = await groupsClient.getGroupAnalysis(groupId);
+  if (!response) {
+    throw new Error('Failed to fetch group analysis');
   }
   return response;
 });
