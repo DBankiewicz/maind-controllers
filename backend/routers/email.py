@@ -151,12 +151,12 @@ async def add_and_analyze(
 
 
     return {"message": f"Added {len(new_emails)} emails to group {group_id}"}
-    
 
-def get_all_emails(email_id_list: List[str]):
-    with SessionLocal() as session:
-        emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_id_list)).all()
 
+@router.get('/{email_id}')
+def get_timeline_backlog(email_id: str, current_user: User = Depends(get_current_user), session: Session = Depends(get_db)):
+    def get_all_emails(email_ids):
+        emails = session.query(Email).options(joinedload(Email.analysis)).where(Email.public_id.in_(email_ids)).all()
         res = []
         for email in emails:
             analysis = email.analysis
@@ -179,18 +179,14 @@ def get_all_emails(email_id_list: List[str]):
                 ),
                 analysis=analysis
             ))
+        
+        return res
 
-    return res
-
-
-
-
-def get_timeline_backlog(email_id) -> str:
-    email = get_all_emails([email_id])[0]
+    email = get_all_emails([email_id])
     email_ids = retirve_context_data_id(email.email_raw.text, collection_mails, 15, 5 )
-    emails = get_all_emails([email_ids]) + [email] 
+    emails = get_all_emails(email_ids) + [email] 
     output = get_timeline_changes(emails)
-    return output
+    return {"message": output}
 
 # TODO make it an endpoint
 def answer_with_rag(email_id, query : str) -> str:

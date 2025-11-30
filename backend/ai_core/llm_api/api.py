@@ -88,7 +88,7 @@ def retirve_context_data_id(query: str, db_collection: Collection, top_k: int = 
     return context_data
 
 
-async def get_timeline_changes(emails_full: list[EmailWithAnalysis]) - > str:
+async def get_timeline_changes(emails_full: list[EmailWithAnalysis]) -> str:
     emails = [e.analysis for  e in emails_full if e.analysis is not None]
     dag_connections = await async_build_dag(emails)
     rolling_states = calculate_rolling_states(emails, dag_connections)
