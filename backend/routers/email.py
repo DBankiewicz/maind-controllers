@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime, timedelta, timezone
-import chroma
 from fastapi import APIRouter, Depends, HTTPException, Response, status, BackgroundTasks, UploadFile, Request, Form, File
 from pydantic import Json
 from sqlalchemy.orm import Session, joinedload
@@ -108,7 +107,7 @@ async def add_and_analyze(
 
     new_emails = []
     for item in emails:
-        content = item.content
+        content = item.get('text')
         if not content:
             file_binary = form_data.get(item.get('file_key'))
 
