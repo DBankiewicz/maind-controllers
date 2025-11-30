@@ -14,7 +14,7 @@ export class GroupsApi extends BaseApi {
 
   async getGroups(): Promise<EmailsGroupDto[] | undefined> {
     try {
-      const res = await axios.get(`${this.baseUrl}/groups`);
+      const res = await axios.get(`${this.baseUrl}/group`);
       return res.data;
     } catch {
       return undefined;
