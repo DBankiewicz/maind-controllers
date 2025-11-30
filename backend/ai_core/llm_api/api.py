@@ -1,3 +1,9 @@
+import pysqlite3
+import sys
+
+# Override built-in sqlite3 module
+sys.modules['sqlite3'] = pysqlite3
+
 from chromadb import Collection
 from openai import OpenAI
 from dotenv import load_dotenv
