@@ -80,8 +80,8 @@ async def get_timeline_changes(emails_full: list[EmailWithAnalysis]) -> str:
         response += f"Email: {id} --> Rolling State: {rolling_states.get(e, 'No State')}\n"
 
     response += "\nTopic Tags:\n"
-    for email, topics in topic_tags.items():
-        response += f"Email: {email.id}\n"
+    for id, (email, topics) in zip(ids, topic_tags.items()):
+        response += f"Email: {id}\n"
         response += f"Topics: {';; '.join(topics)}\n"
         response += "-----\n"
     
